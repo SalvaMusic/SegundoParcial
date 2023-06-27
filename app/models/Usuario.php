@@ -2,40 +2,20 @@
 
 class Usuario
 {
-    public $id;
-    public $nombre;
-    public $apellido;
+    public $id;    
     public $email;
     public $clave;
-    public $roll;
-    public $sector;
-    public $fechaRegistro;
-    public $fechaBaja;
-
-    /*public function __construct($nombre = null, $apellido = null, $email = null, $clave = null, $roll = null, $sector = null, $fechaRegistro = null)
-    {
-        $this->nombre = $nombre;
-        $this->apellido = $apellido;
-        $this->email = $email;
-        $this->clave = $clave;
-        $this->sector = $sector;
-        $this->roll = $roll;
-        $this->fechaRegistro = $fechaRegistro != null ? $fechaRegistro : new DateTime(date("d-m-Y"));        
-    }*/
+    public $tipo;
 
     public function guardarUsuario()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         if($this->id == null){
-            $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO usuario (nombre, apellido, email, clave, roll, sector, fechaRegistro) VALUES (:nombre, :apellido, :email, :clave, :roll, :sector, :fechaRegistro)");
-            $consulta->bindValue(':fechaRegistro', date_format($this->fechaRegistro, 'Y-m-d H:i:s'));
+            $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO usuario (email, clave, tipo) VALUES (:email, :clave, :tipo)");
         } else {
-            $query = "UPDATE usuario SET 
-                nombre = :nombre,
-                apellido = :apellido,
+            $query = "UPDATE usuario SET                 
                 email = :email,
-                roll = :roll,
-                sector = :sector, 
+                tipo = :tipo,
                 clave = :clave
                 WHERE id = :id";
             $consulta = $objAccesoDatos->prepararConsulta($query);
@@ -43,12 +23,9 @@ class Usuario
         }
 
         $claveHash = password_hash($this->clave, PASSWORD_DEFAULT);
-        $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
-        $consulta->bindValue(':apellido', $this->apellido, PDO::PARAM_STR);
-        $consulta->bindValue(':email', $this->email, PDO::PARAM_STR);
-        $consulta->bindValue(':roll', $this->roll, PDO::PARAM_STR);
-        $consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
         $consulta->bindValue(':clave', $claveHash);
+        $consulta->bindValue(':email', $this->email, PDO::PARAM_STR);
+        $consulta->bindValue(':tipo', $this->tipo, PDO::PARAM_STR);
         $consulta->execute();
 
         return $this->id != null ? $this->id : $objAccesoDatos->obtenerUltimoId();
@@ -57,7 +34,7 @@ class Usuario
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, nombre, apellido, email, clave, roll, sector, fechaRegistro, fechaBaja FROM usuario");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM usuario");
         $consulta->execute();
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
@@ -75,7 +52,7 @@ class Usuario
         return $usuario;
     }
 
-    public static function borrarUsuario($usuario)
+   /* public static function borrarUsuario($usuario)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("UPDATE usuario SET fechaBaja = :fechaBaja WHERE id = :id");
@@ -83,5 +60,5 @@ class Usuario
         $consulta->bindValue(':id', $usuario, PDO::PARAM_INT);
         $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
         $consulta->execute();
-    }
+    }*/
 }

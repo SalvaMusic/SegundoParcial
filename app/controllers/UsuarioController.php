@@ -1,5 +1,4 @@
 <?php
-require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
 
 class UsuarioController extends Usuario implements IApiUsable
@@ -18,7 +17,7 @@ class UsuarioController extends Usuario implements IApiUsable
         $usr->nombre = $nombre;
         $usr->apellido = $apellido;
         $usr->email = $email;
-        $usr->crearUsuario();
+        $usr->guardarUsuario();
 
         $payload = json_encode(array("mensaje" => "Usuario " . $nombre . " " . $apellido . " creado con exito"));
 
