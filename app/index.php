@@ -18,6 +18,8 @@ require_once './db/AccesoDatos.php';
 // require_once './middlewares/Logger.php';
 
 require_once './controllers/UsuarioController.php';
+require_once './controllers/ArmasController.php';
+require_once './middlewares/AutVendedoresMiddleware.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -34,24 +36,15 @@ $app->addBodyParsingMiddleware();
 
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \UsuarioController::class . ':TraerTodos');
-    $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno');
+    $group->post('[/]', \UsuarioController::class . ':login');
 });
 
-$app->group('/credenciales', function (RouteCollectorProxy $group) {
-  $group->map(['GET', 'POST'], '', function($request, $response, array $args){
-    $method = $request->getMethod();
-    $response->getBody()->write($method);
-    return $response;
-  });
+$app->group('/armas', function (RouteCollectorProxy $group) {
+  $group->post('[/]', \ArmasController::class . ':CargarUno')->add(new AutVendedoresMiddleware());
+  $group->get('[/]', \ArmasController::class . ':TraerTodos');
+  $group->get('/nacionalidad/{nacionalidad}', \ArmasController::class . ':FiltrarNacionalidad');
+  $group->get('/id/{id}', \ArmasController::class . ':TraerUno');
 });
 
-$app->get('[/]', function (Request $request, Response $response) {    
-    $payload = json_encode(array("mensaje" => "Slim Framework 4 ssPHP"));
-    
-    $response->getBody()->write($payload);
-    return $response->withHeader('Content-Type', 'application/json');
-});
 
 $app->run();

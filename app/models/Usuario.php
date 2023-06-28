@@ -48,7 +48,17 @@ class Usuario
         $consulta->execute();
 
         $usuario = $consulta->fetchObject('Usuario');
-        var_dump($usuario);
+        return $usuario;
+    }
+
+    public static function obtenerUsuarioPorEmail($email)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM usuario WHERE email = :email");
+        $consulta->bindValue(':email', $email, PDO::PARAM_STR);
+        $consulta->execute();
+
+        $usuario = $consulta->fetchObject('Usuario');
         return $usuario;
     }
 

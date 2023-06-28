@@ -1,9 +1,43 @@
 <?php
 require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
+require_once './middlewares/Logger.php';
 
 class UsuarioController extends Usuario implements IApiUsable
 {
+
+    public function FiltrarNacionalidad($request, $response, $args)
+    {
+
+        $payload = json_encode(array("lista Usuarios Por Nacionalidad" => array()));
+
+       
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    public static function login($request, $response, array $args)
+    {
+        $parametros = $request->getParsedBody();
+
+        $email = $parametros['email'];
+        $clave = $parametros['clave'];
+
+        $usr = Usuario::obtenerUsuarioPorEmail($email);
+
+        if ($usr != null) {
+            if (password_verify($clave, $usr->clave)) {
+                $token = Logger::crearToken($usr->id, $email);
+                $retorno = json_encode(array("mensaje" => $usr->tipo . " " . $email ." Logeado correctamente"));
+                $response = $response->withHeader('Authorization', $token);
+            } else {
+                $retorno = json_encode(array("mensaje" => "Contraseña incorrecta"));
+            }
+        } else {
+            $retorno = json_encode(array("mensaje" => "Usuario no encontrado"));
+        }
+        $response->getBody()->write($retorno);
+        return $response;
+    }
+
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
@@ -15,8 +49,6 @@ class UsuarioController extends Usuario implements IApiUsable
 
         // Creamos el usuario
         $usr = new Usuario();
-        $usr->nombre = $nombre;
-        $usr->apellido = $apellido;
         $usr->email = $email;
         $usr->guardarUsuario();
 
@@ -54,7 +86,7 @@ class UsuarioController extends Usuario implements IApiUsable
         $parametros = $request->getParsedBody();
 
         $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
+        //Usuario::modificarUsuario($nombre);
 
         $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
@@ -68,7 +100,7 @@ class UsuarioController extends Usuario implements IApiUsable
         $parametros = $request->getParsedBody();
 
         $usuarioId = $parametros['usuarioId'];
-        Usuario::borrarUsuario($usuarioId);
+        //Usuario::borrarUsuario($usuarioId);
 
         $payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
 
@@ -76,4 +108,6 @@ class UsuarioController extends Usuario implements IApiUsable
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
+    
 }
