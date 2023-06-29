@@ -25,7 +25,7 @@ class UsuarioController extends Usuario implements IApiUsable
 
         if ($usr != null) {
             if (password_verify($clave, $usr->clave)) {
-                $token = Logger::crearToken($usr->id, $email);
+                $token = Logger::crearToken($usr->id, $email, $usr->tipo);
                 $retorno = json_encode(array("mensaje" => $usr->tipo . " " . $email ." Logeado correctamente"));
                 $response = $response->withHeader('Authorization', $token);
             } else {
