@@ -1,19 +1,11 @@
 <?php
 require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
-require_once './middlewares/Logger.php';
+require_once 'JWTController.php';
 
 class UsuarioController extends Usuario implements IApiUsable
 {
 
-    public function FiltrarNacionalidad($request, $response, $args)
-    {
-
-        $payload = json_encode(array("lista Usuarios Por Nacionalidad" => array()));
-
-       
-        return $response->withHeader('Content-Type', 'application/json');
-    }
     public static function login($request, $response, array $args)
     {
         $parametros = $request->getParsedBody();
@@ -25,7 +17,7 @@ class UsuarioController extends Usuario implements IApiUsable
 
         if ($usr != null) {
             if (password_verify($clave, $usr->clave)) {
-                $token = Logger::crearToken($usr->id, $email, $usr->tipo);
+                $token = JWTController::crearToken($usr->id, $email, $usr->tipo);
                 $retorno = json_encode(array("mensaje" => $usr->tipo . " " . $email ." Logeado correctamente"));
                 $response = $response->withHeader('Authorization', $token);
             } else {
@@ -61,15 +53,17 @@ class UsuarioController extends Usuario implements IApiUsable
 
     public function TraerUno($request, $response, $args)
     {
-        // Buscamos usuario por nombre
-        $usr = $args['usuario'];
-        $usuario = Usuario::obtenerUsuario($usr);
-        $payload = json_encode($usuario);
+        $nombreArma = $args['nombreArma'];
+        $lista = Usuario::obtenerUsuariosPorArma($nombreArma);
+
+        $payload = json_encode(array("Usuarios que vendieron " . $nombreArma => $lista));
 
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
+    
 
     public function TraerTodos($request, $response, $args)
     {

@@ -51,6 +51,20 @@ class Usuario
         return $usuario;
     }
 
+    public static function obtenerUsuariosPorArma($nombreArma)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT u.* FROM usuario as u 
+                                                        JOIN venta as v ON v.usuarioId = u.id
+                                                        JOIN armas as a ON a.id = v.armaId
+                                                        WHERE a.nombre = :nombreArma
+                                                        GROUP BY u.id");
+        $consulta->bindValue(':nombreArma', $nombreArma, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
+    }
+
     public static function obtenerUsuarioPorEmail($email)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -62,13 +76,4 @@ class Usuario
         return $usuario;
     }
 
-   /* public static function borrarUsuario($usuario)
-    {
-        $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("UPDATE usuario SET fechaBaja = :fechaBaja WHERE id = :id");
-        $fecha = new DateTime(date("d-m-Y"));
-        $consulta->bindValue(':id', $usuario, PDO::PARAM_INT);
-        $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
-        $consulta->execute();
-    }*/
 }
