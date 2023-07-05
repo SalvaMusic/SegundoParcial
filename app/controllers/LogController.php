@@ -1,32 +1,33 @@
 <?php
-require_once './models/Armas.php';
+require_once './models/Log.php';
 require_once './interfaces/IApiUsable.php';
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class ArmasController extends Armas implements IApiUsable
+class LogController extends Armas implements IApiUsable
 {
-    public function CargarUno(Request $request, Response $response, $args)
+    public function CargarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
+        $usuarioId = $response->getAttribute('X-usuarioId');
+        $armaId = $response->getAttribute('X-armaId');
+        $accion = $response->getAttribute('X-accion');
+        $fecha = $response->getAttribute('X-fecha');
 
-        $precio = $parametros['precio'];
-        $nombre = $parametros['nombre'];
-        $nacionalidad = $parametros['nacionalidad'];
+        if($usuarioId != null && $armaId  != null && $accion != null && $fecha != null){
 
-        $arm = new Armas();
-        $arm->nombre = $nombre;
-        $arm->precio = intval($precio);
-        $arm->nacionalidad = $nacionalidad;
-        $arm->guardar();
-
-        $payload = json_encode(array("mensaje" => $nombre . " agregada con éxito"));
-
-        $response->getBody()->write($payload);
-        return $response->withHeader('Content-Type', 'application/json');
+            $log = new Log();
+            $log->usuarioId = intval($usuarioId);
+            $log->armaId = intval($armaId);
+            $log->accion = $accion;
+            $fecha = DateTime::createFromFormat("d/m/Y", $fecha);
+            $log->fecha = $fecha->format("Y-m-d");        
+            $log->guardar();
+        }
+        return $response;
     }
 
-    public function TraerUno(Request $request, Response $response, $args)
+    public function TraerUno($request, $response, $args)
     {
         $id = $args['id'];
         $arma = Armas::obtenerArma($id);
@@ -38,7 +39,7 @@ class ArmasController extends Armas implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function TraerTodos(Request $request, Response $response, $args)
+    public function TraerTodos($request, $response, $args)
     {
         $lista = Armas::obtenerTodos();
         $payload = json_encode(array("lista Armas" => $lista));
@@ -48,9 +49,8 @@ class ArmasController extends Armas implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function FiltrarNacionalidad(Request $request, Response $response, $args)
+    public function FiltrarNacionalidad($request, $response, $args)
     {
-        var_dump($args);
         $nacionalidad = $args['nacionalidad'];
         $lista = Armas::obtenerPorNacionalidad($nacionalidad);
         $payload = json_encode(array("lista Armas Por Nacionalidad" => $lista));
@@ -59,7 +59,7 @@ class ArmasController extends Armas implements IApiUsable
         return $response->withHeader('Content-Type', 'application/json');
     }
     
-    public function ModificarUno(Request $request, Response $response, $args)
+    public function ModificarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
         $id = $parametros['id'];
@@ -85,27 +85,18 @@ class ArmasController extends Armas implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function BorrarUno(Request $request, Response $response, $args)
+    public function BorrarUno($request, $response, $args)
     {
         $mensaje = null;
         $armaId = $args['id'];
-        $usuarioId = $request->getParsedBody()['usuarioId'];
-
         $arma = Armas::obtenerArma($armaId);
         if ($arma != null){
             $arma->borrarArma();
             $data = "Arma borrada con exito";
-            $fecha = date('Y-m-d');
-    
-           /* $response = $response->withAttribute('X-fecha', $fecha);
-            $response = $response->withAttribute('X-accion', 'Emilinar');
-            $response = $response->withAttribute('X-armaId', $arma);
-            $response = $response->withAttribute('X-usuarioId', $usuarioId);*/
         } else {
             $data = "Arma Inexistente";
         }
         $payload = json_encode($data);
-
 
         $response->getBody()->write($payload);
         return $response

@@ -22,7 +22,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
             try{
                 $token = $request->getHeaderLine('authorization');
-                
+
                 if(!empty($token)){
                     $usuarioId = JWTController::validarToken($token, $this->tipo);
                     

@@ -2,11 +2,13 @@
 require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
 require_once 'JWTController.php';
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class UsuarioController extends Usuario implements IApiUsable
 {
 
-    public static function login($request, $response, array $args)
+    public static function login(Request $request, Response $response, array $args)
     {
         $parametros = $request->getParsedBody();
 
@@ -30,7 +32,7 @@ class UsuarioController extends Usuario implements IApiUsable
         return $response;
     }
 
-    public function CargarUno($request, $response, $args)
+    public function CargarUno(Request $request, Response $response, $args)
     {
         $parametros = $request->getParsedBody();
 
@@ -51,7 +53,7 @@ class UsuarioController extends Usuario implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function TraerUno($request, $response, $args)
+    public function TraerUno(Request $request, Response $response, $args)
     {
         $nombreArma = $args['nombreArma'];
         $lista = Usuario::obtenerUsuariosPorArma($nombreArma);
@@ -65,7 +67,7 @@ class UsuarioController extends Usuario implements IApiUsable
 
     
 
-    public function TraerTodos($request, $response, $args)
+    public function TraerTodos(Request $request, Response $response, $args)
     {
         $lista = Usuario::obtenerTodos();
         $payload = json_encode(array("listaUsuario" => $lista));
@@ -75,7 +77,7 @@ class UsuarioController extends Usuario implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
     
-    public function ModificarUno($request, $response, $args)
+    public function ModificarUno(Request $request, Response $response, $args)
     {
         $parametros = $request->getParsedBody();
 
@@ -89,7 +91,7 @@ class UsuarioController extends Usuario implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function BorrarUno($request, $response, $args)
+    public function BorrarUno(Request $request, Response $response, $args)
     {
         $parametros = $request->getParsedBody();
 

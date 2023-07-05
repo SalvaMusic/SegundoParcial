@@ -3,6 +3,11 @@ require_once './models/Armas.php';
 require_once './models/Venta.php';
 require_once './interfaces/IApiUsable.php';
 
+
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
+
 class VentaController extends Venta implements IApiUsable
 {
     public function CargarUno($request, $response, $args)
@@ -15,9 +20,12 @@ class VentaController extends Venta implements IApiUsable
         $armaId = $parametros['armaId'];
         $usuarioId = $parametros['usuarioId'];
 
+       
         $venta = new Venta();
         $venta->usuarioId = intval($usuarioId);
         $venta->cantidad = intval($cantidad);
+        
+
         
         $fecha = DateTime::createFromFormat("d/m/Y", $fecha);
 
@@ -33,6 +41,7 @@ class VentaController extends Venta implements IApiUsable
             if($arma != null){
                 $venta->armaId = $armaId;
                 $venta->guardar();
+                $venta->moverFoto($_FILES["foto"], $arma->nombre);
                 $mensaje = "Venta de arma ". $arma->nombre ." realizada correctamente.";
             } else {
                 $mensaje = "Arma inexistente.";
@@ -45,6 +54,7 @@ class VentaController extends Venta implements IApiUsable
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    
     public function TraerUno($request, $response, $args)
     {
        /* $id = $args['id'];
@@ -84,7 +94,6 @@ class VentaController extends Venta implements IApiUsable
         $parametros = $request->getParsedBody();
 
         $nombre = $parametros['nombre'];
-        //Usuario::modificarUsuario($nombre);
 
         $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
@@ -98,7 +107,6 @@ class VentaController extends Venta implements IApiUsable
         $parametros = $request->getParsedBody();
 
         $usuarioId = $parametros['usuarioId'];
-        //Usuario::borrarUsuario($usuarioId);
 
         $payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
 

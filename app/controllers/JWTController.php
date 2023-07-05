@@ -34,7 +34,6 @@ class JWTController
         try {
             $data = JWTController::ObtenerData($token);
             if($tipo == null || $data->tipo == $tipo){
-                var_dump($data->id);
                 $valido =  $data->id;                
             }
         } catch (Exception $e) {   }

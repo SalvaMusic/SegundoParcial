@@ -11,7 +11,13 @@ class Armas
     public function guardar()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO armas (nombre, precio, foto, nacionalidad) VALUES (:nombre, :precio, :foto, :nacionalidad)");
+        if($this->id == null){
+            $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO armas (nombre, precio, foto, nacionalidad) VALUES (:nombre, :precio, :foto, :nacionalidad)");
+        } else {
+            $consulta = $objAccesoDatos->prepararConsulta("UPDATE armas SET nombre = :nombre,  precio = :precio, foto = :foto, nacionalidad = :nacionalidad
+                                                            WHERE id = :id");
+            $consulta->bindValue(':id', $this->id);
+        }
         $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
         $consulta->bindValue(':precio', $this->precio);
         $consulta->bindValue(':foto', $this->foto, PDO::PARAM_STR);
@@ -57,6 +63,15 @@ class Armas
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->bindValue(':foto', $foto, PDO::PARAM_INT);
         $consulta->execute();
+    }
+
+    public function borrarArma()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("DELETE FROM armas WHERE id = :id");
+        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
+        var_dump($consulta->execute());
+
     }
 
 }
